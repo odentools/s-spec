@@ -13,7 +13,7 @@ This project is development phase.
 Currently it works on Node.js / io.js.
 
 ```
-	$ npm install --save https://github.com/odentools/s-spec.git
+$ npm install --save https://github.com/odentools/s-spec.git
 ```
 ```js
 var sv = require('SSpecValidator');
