@@ -17,9 +17,12 @@ describe('Initialization', function () {
 describe('Parse & Validation', function () {
 
 	var validator = new SSpecValidator({
-		isDebug: true
+		// isDebug: true
 	});
 
+	/**
+	 * INTEGER
+	 */
 
 	it('INTEGER(-255, 255) DEFAULT 0', function (done) {
 
@@ -28,6 +31,30 @@ describe('Parse & Validation', function () {
 		assert.equal(validator.isValid(spec, 0), true);
 		assert.equal(validator.isValid(spec, 'Foo'), false);
 		assert.equal(validator.isValid(spec, true), false);
+		assert.equal(validator.isValid(spec, 0.01), false, 'Float number should be invalid in INTEGER');
+		assert.equal(validator.isValid(spec, '123'), false);
+
+		assert.equal(validator.isValid(spec, 255), true);
+		assert.equal(validator.isValid(spec, -255), true);
+
+		assert.equal(validator.isValid(spec, 256), false);
+		assert.equal(validator.isValid(spec, -256), false);
+
+		assert.equal(new SSpecParser(spec).getDefaultValue(), 0);
+
+		done();
+
+	});
+
+
+	it('INTEGER (-255, 255) DEFAULT 0', function (done) {
+
+		var spec = 'INTEGER(-255, 255) DEFAULT 0';
+
+		assert.equal(validator.isValid(spec, 0), true);
+		assert.equal(validator.isValid(spec, 'Foo'), false);
+		assert.equal(validator.isValid(spec, true), false);
+		assert.equal(validator.isValid(spec, 0.01), false);
 
 		assert.equal(validator.isValid(spec, 255), true);
 		assert.equal(validator.isValid(spec, -255), true);
@@ -47,8 +74,9 @@ describe('Parse & Validation', function () {
 		var spec = 'INTEGER() DEFAULT 255';
 
 		assert.equal(validator.isValid(spec, 0), true);
-
 		assert.equal(validator.isValid(spec, 'Foo'), false);
+		assert.equal(validator.isValid(spec, true), false);
+		assert.equal(validator.isValid(spec, 0.01), false);
 
 		assert.equal(new SSpecParser(spec).getDefaultValue(), 255);
 
@@ -62,8 +90,9 @@ describe('Parse & Validation', function () {
 		var spec = 'INTEGER';
 
 		assert.equal(validator.isValid(spec, 0), true);
-
 		assert.equal(validator.isValid(spec, 'Foo'), false);
+		assert.equal(validator.isValid(spec, true), false);
+		assert.equal(validator.isValid(spec, 0.01), false);
 
 		assert.equal(new SSpecParser(spec).getDefaultValue(), null);
 
@@ -72,12 +101,116 @@ describe('Parse & Validation', function () {
 	});
 
 
-	it('STRING DEFAULT default', function (done) {
+	/**
+	 * FLOAT
+	 */
+
+	it('FLOAT(-255.0, 255.0) DEFAULT 0.01', function (done) {
+
+		var spec = 'FLOAT(-255.0, 255.0) DEFAULT 0.01';
+
+		assert.equal(validator.isValid(spec, 0.0), true);
+		assert.equal(validator.isValid(spec, 0), true);
+		assert.equal(validator.isValid(spec, 'Foo'), false);
+		assert.equal(validator.isValid(spec, true), false);
+
+		assert.equal(validator.isValid(spec, 255.0), true);
+		assert.equal(validator.isValid(spec, -255.0), true);
+
+		assert.equal(validator.isValid(spec, 255.1), false);
+		assert.equal(validator.isValid(spec, -255.1), false);
+
+		assert.equal(new SSpecParser(spec).getDefaultValue(), 0.01);
+
+		done();
+
+	});
+
+	it('FLOAT()', function (done) {
+
+		var spec = 'FLOAT()';
+
+		assert.equal(validator.isValid(spec, 0.0), true);
+		assert.equal(validator.isValid(spec, 0), true);
+		assert.equal(validator.isValid(spec, 'Foo'), false);
+		assert.equal(validator.isValid(spec, true), false);
+
+		assert.equal(new SSpecParser(spec).getDefaultValue(), null);
+
+		done();
+
+	});
+
+
+	/**
+	 * NUMBER
+	 */
+
+	it('NUMBER(-255.0, 255.0) DEFAULT 0.01', function (done) {
+
+		var spec = 'NUMBER(-255.0, 255.0) DEFAULT 0.01';
+
+		assert.equal(validator.isValid(spec, 0), true);
+		assert.equal(validator.isValid(spec, 0.0), true);
+		assert.equal(validator.isValid(spec, 'Foo'), false);
+		assert.equal(validator.isValid(spec, true), false);
+
+		assert.equal(validator.isValid(spec, 255.0), true);
+		assert.equal(validator.isValid(spec, -255.0), true);
+
+		assert.equal(validator.isValid(spec, 255.1), false);
+		assert.equal(validator.isValid(spec, -255.1), false);
+
+		assert.equal(new SSpecParser(spec).getDefaultValue(), 0.01);
+
+		done();
+
+	});
+
+	it('NUMBER()', function (done) {
+
+		var spec = 'NUMBER()';
+
+		assert.equal(validator.isValid(spec, 0), true);
+		assert.equal(validator.isValid(spec, 0.0), true);
+		assert.equal(validator.isValid(spec, 'Foo'), false);
+		assert.equal(validator.isValid(spec, true), false);
+
+		assert.equal(new SSpecParser(spec).getDefaultValue(), null);
+
+		done();
+
+	});
+
+
+	/**
+	 * STRING
+	 */
+
+	it('STRING DEFAULT \'default\' REGEXP \'^[a-z\\\'\\"\\ ]+$\'', function (done) {
+
+		var spec = 'STRING DEFAULT default REGEXP \'^[a-z\\\'\\"\ ]+$\'';
+
+		assert.equal(validator.isValid(spec, 'foo'), true);
+		assert.equal(validator.isValid(spec, 'foo bar'), true);
+		assert.equal(validator.isValid(spec, '\'foo\' "bar"'), true);
+
+		assert.equal(validator.isValid(spec, '123'), false, 'It should be invalid by RegExp');
+		assert.equal(validator.isValid(spec, 'Foo'), false, 'It should be invalid by RegExp');
+		assert.equal(validator.isValid(spec, 0), false);
+		assert.equal(validator.isValid(spec, true), false);
+
+		assert.equal(new SSpecParser(spec).getDefaultValue(), 'default');
+
+		done();
+
+	});
+
+	it('STRING DEFAULT \'default\'', function (done) {
 
 		var spec = 'STRING DEFAULT default';
 
 		assert.equal(validator.isValid(spec, 'foo'), true);
-		assert.equal(validator.isValid(spec, 'bar'), true);
 
 		assert.equal(validator.isValid(spec, 0), false);
 		assert.equal(validator.isValid(spec, true), false);
@@ -101,6 +234,10 @@ describe('Parse & Validation', function () {
 
 	});
 
+
+	/**
+	 * BOOLEAN
+	 */
 
 	it('BOOLEAN DEFAULT false', function (done) {
 
@@ -135,6 +272,10 @@ describe('Parse & Validation', function () {
 
 	});
 
+
+	/**
+	 * TEXT
+	 */
 
 	it('TEXT(2, 10) DEFAULT \'foobar\'', function (done) {
 

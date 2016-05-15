@@ -20,14 +20,21 @@ var SSpecParser = function (spec_str) {
 	this.specStr = spec_str;
 
 	// Variable type
+	this.VARIABLE_TYPES = ['BOOLEAN', 'FLOAT', 'INTEGER', 'NUMBER', 'STRING', 'TEXT'];
 	this.type = null;
-
-	// Default value
-	this.default = null;
 
 	// Range of value
 	this.min = null;
 	this.max = null;
+
+	// Additonal options
+	this.OPTION_KEYS = ['DEFAULT', 'REGEXP'];
+
+	// Additonal options - Default value
+	this.default = null;
+
+	// Additonal options - Regular Expression for STRING or TEXT
+	this.regExp = null;
 
 	// ---
 
@@ -56,15 +63,11 @@ SSpecParser.prototype._parseSpec = function (spec_str) {
 
 	var self = this;
 
-	var VAR_TYPES = [
-		'INTEGER', 'STRING', 'BOOLEAN', 'TEXT'
-	];
-
 	if (!spec_str.match(/^([a-zA-Z]+)(\((.*)\)|)/)) throw new Error('Could not parse the specification');
 
 	// Type
 	var type_chunk = helper.toUpperCase(RegExp.$1);
-	if (VAR_TYPES.indexOf(type_chunk) == -1) throw new Error('Variable type is unknown: ' + type_chunk);
+	if (self.VARIABLE_TYPES.indexOf(type_chunk) == -1) throw new Error('Variable type is unknown: ' + type_chunk);
 	self.type = type_chunk;
 
 	// Limitation of the value range
@@ -80,21 +83,69 @@ SSpecParser.prototype._parseSpec = function (spec_str) {
 		}
 	}
 
-	// Other options
-	var chunks = spec_str.split(/ /);
-	var before_chunk = new String();
-	chunks.forEach(function (chunk, i) {
+	// Additional options
+	var chars = spec_str.split('');
+	chars.push(' ');
+	var buf = new String(), chunk = new String(), key = null, quot = '', is_escaped = false;
+	chars.forEach(function (char, i) {
 
-		if (i == 0) return; // skip
+		// Parse the option string
+		if (char == ' ' && key == null && buf != '') {
+			// End of chunk (Key)
+			key = helper.toUpperCase(buf);
+			if (self.OPTION_KEYS.indexOf(key) == -1) { // Invalid key
+				key = null;
+			}
+			chunk = new String();
+			buf = new String();
+			return;
 
-		// Default Value
-		if (before_chunk == 'DEFAULT') {
+		} else if (!is_escaped && char == ' ' && quot == '') {
+			// End of chunk
+			chunk += buf;
+			buf = new String();
+			// Don't return
+
+		} else if (!is_escaped && char == '\'') {
+			// Quot
+			if (quot == '') {
+				quot = char;
+			} else {
+				quot = '';
+			}
+			return;
+
+		} else if (char == '\\') {
+			// Escape
+			buf = buf + '' + char;
+			is_escaped = true;
+			return;
+
+		} else {
+			// Other character
+			is_escaped = false;
+			buf = buf + '' + char;
+			return;
+
+		}
+
+		// ----
+
+		if (key == 'DEFAULT') {
+			// Default Value
 			chunk = chunk.replace(/^['"]/, '');
 			chunk = chunk.replace(/([a-zA-Z])['"]$/, '$1');
 			self.default = self._getDefaultValueByChunk(chunk);
+			key = null;
+			return;
 		}
 
-		before_chunk = chunk;
+		if (key == 'REGEXP') {
+			// Regular Expression
+			self.regExp = new RegExp(chunk);
+			key = null;
+			return;
+		}
 
 	});
 
@@ -118,6 +169,10 @@ SSpecParser.prototype._getDefaultValueByChunk = function (chunk) {
 	} else if (self.type == 'INTEGER') {
 
 		return parseInt(chunk);
+
+	} else if (self.type == 'FLOAT') {
+
+		return parseFloat(chunk);
 
 	} else if (self.type == 'BOOLEAN') {
 

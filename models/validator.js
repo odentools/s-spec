@@ -73,10 +73,15 @@ SSpecValidator.prototype.validate = function (spec_str, value) {
 	var spec = new Parser(spec_str);
 	if (self.isDebug) console.log('Specification parsed', spec);
 
-	if (spec.type === 'INTEGER') {
+	if (spec.type === 'INTEGER' || spec.type === 'FLOAT' || spec.type === 'NUMBER') {
 
 		if (!helper.isType('Number', value)) {
 			return 'Value should be Number';
+		}
+
+		// Integer check
+		if (spec.type === 'INTEGER' && value.toString().indexOf('.') != -1) {
+			return 'Value should be integer number.';
 		}
 
 		// Range validation
@@ -105,6 +110,11 @@ SSpecValidator.prototype.validate = function (spec_str, value) {
 		}
 		if (spec.max != null && spec.max < value.length) {
 			return 'Value should be shorter than ' + spec.min;
+		}
+
+		// Validation using Regular Expression
+		if (spec.regExp != null && !value.match(spec.regExp)) {
+			return 'Value should be matched with regular-expression ' + spec.regExp;
 		}
 
 	}

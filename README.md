@@ -18,6 +18,7 @@ $ npm install --save https://github.com/odentools/s-spec.git
 ```js
 var sv = require('SSpecValidator');
 
+// Validation
 console.log(sv.isValid('INTEGER(0,255) DEFAULT 0', 100)); // Okay
 console.log(sv.isValid('INTEGER(0,255) DEFAULT 0', 256)); // Out of range
 
@@ -25,6 +26,7 @@ console.log(sv.isValid('TEXT(1,4)', 'okay')); // Okay
 console.log(sv.isValid('TEXT(1,4)', '')); // Too short
 console.log(sv.isValid('TEXT(1,4)', 'hello')); // Too long
 
+// Get a valid value
 console.log(sv.getValidValue('INTEGER(0,255) DEFAULT 100', 255)); // 255
 console.log(sv.getValidValue('INTEGER(0,255) DEFAULT 100', 256)); // 100
 
@@ -43,12 +45,26 @@ $ node sspec.js --spec 'INTEGER(0,255) DEFAULT 0'
 
 ## S-Spec Specification
 
-    VARIABLE_TYPE(MIN_VALUE, MAX_VALUE) DEFAULT x
+Basic format:
+
+	VARIABLE_TYPE[(MIN_VALUE, MAX_VALUE)|(MAX_VALUE)] [DEFAULT x] [REGEXP exp]
+
+Example:
+
+	INTEGER(0,255) DEFAULT 100
+	INTEGER(0,255)
+	INTEGER(255)
+	INTEGER (255)
+	INTEGER()
+	INTEGER
+	...
 
 ### VARIABLE_TYPE
 
 * BOOLEAN
+* FLOAT
 * INTEGER
+* NUMBER - INTEGER and FLOAT; Alias of FLOAT at present.
 * STRING
 * TEXT - Alias of STRING
 
@@ -68,6 +84,13 @@ If the variable type is STRING or TEXT, it gives limitation with string length.
 
 Default value.
 
+### REGEXP (Optional)
+
+Validate whether the value is matched to the regular-expression.
+
+Example:
+
+	REGEXP ^[a-z]+$
 
 ## Licenses
 
