@@ -84,13 +84,19 @@ If the variable type is STRING or TEXT, it gives limitation with string length.
 
 Default value.
 
+Example:
+
+	DEFAULT 'hello'
+	DEFAULT 0
+	DEFAULT false
+
 ### REGEXP (Optional)
 
 Validate whether the value is matched to the regular-expression.
 
 Example:
 
-	REGEXP ^[a-z]+$
+	REGEXP '^[a-z\'\" ]+$'
 
 ## Licenses
 
