@@ -3,47 +3,11 @@ Single line specification for field values.
 
 This project is development phase.
 
-[![Build Status](https://travis-ci.org/odentools/s-spec.svg?branch=master)](https://travis-ci.org/odentools/s-spec)
+## Parser & Validators
 
+A list of parser and validator is available on https://github.com/odentools/s-spec/wiki/Softwares
 
-## Get Started
-
-### On Your Code
-
-Currently it works on Node.js / io.js.
-
-```
-$ npm install --save https://github.com/odentools/s-spec.git
-```
-```js
-var sv = require('SSpecValidator');
-
-// Validation
-console.log(sv.isValid('INTEGER(0,255) DEFAULT 0', 100)); // Okay
-console.log(sv.isValid('INTEGER(0,255) DEFAULT 0', 256)); // Out of range
-
-console.log(sv.isValid('TEXT(1,4)', 'okay')); // Okay
-console.log(sv.isValid('TEXT(1,4)', '')); // Too short
-console.log(sv.isValid('TEXT(1,4)', 'hello')); // Too long
-
-// Get a valid value
-console.log(sv.getValidValue('INTEGER(0,255) DEFAULT 100', 255)); // 255
-console.log(sv.getValidValue('INTEGER(0,255) DEFAULT 100', 256)); // 100
-
-```
-
-### On Command (Under construction...)
-
-```
-$ git clone https://github.com/odentools/s-spec.git
-$ cd s-spec/
-$ npm install
-$ node sspec.js --spec 'INTEGER(0,255) DEFAULT 0'
-100
-```
-
-
-## S-Spec Specification
+## Specification
 
 Basic format:
 
@@ -98,9 +62,8 @@ Example:
 
 	REGEXP '^[a-z\'\" ]+$'
 
-## Licenses
+## Licenses and Maintainer
 
 ```
-The MIT License (MIT).
-Copyright (c) 2016 OdenTools Project.
+Public Domain; Maintained by OdenTools.
 ```
